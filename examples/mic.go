@@ -19,17 +19,11 @@ const (
 )
 
 func main() {
-	modelsDir := flag.String("models", "./models", "Directory containing the wake word models")
 	wakeWordName := flag.String("wakeword", "okay_nabu", "Name of the wake word model to use")
 	flag.Parse()
 
-	if _, err := os.Stat(*modelsDir); os.IsNotExist(err) {
-		log.Fatalf("Models directory does not exist: %s", *modelsDir)
-	}
-
 	wakeWord, err := microwakeword.FromBuiltin(
 		*wakeWordName,
-		*modelsDir,
 		microwakeword.DefaultRefractory,
 	)
 	if err != nil {

@@ -8,9 +8,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/pmdroid/microwakeword/pkg/microfrontend"
-	"io/ioutil"
 	"math"
+	"os"
 	"path/filepath"
+	"runtime"
 	"unsafe"
 )
 
@@ -148,10 +149,15 @@ func (mww *MicroWakeWord) Reset() error {
 
 func FromBuiltin(
 	modelName string,
-	modelsDir string,
 	refractorySeconds float64,
 ) (*MicroWakeWord, error) {
-	configPath := filepath.Join(modelsDir, modelName+".json")
+	_, filename, _, ok := runtime.Caller(0)
+	if !ok {
+		return nil, fmt.Errorf("failed to get the current file path")
+	}
+	currentDir := filepath.Dir(filename)
+
+	configPath := fmt.Sprintf("%s/models/%s.json", currentDir, modelName)
 	return FromConfig(configPath, refractorySeconds)
 }
 
@@ -159,7 +165,7 @@ func FromConfig(
 	configPath string,
 	refractorySeconds float64,
 ) (*MicroWakeWord, error) {
-	configData, err := ioutil.ReadFile(configPath)
+	configData, err := os.ReadFile(configPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read config file: %v", err)
 	}
