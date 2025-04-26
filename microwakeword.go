@@ -1,9 +1,6 @@
 package microwakeword
 
-// #cgo CXXFLAGS: -std=c++11 -I${SRCDIR}/tensorflow
-// #cgo CFLAGS: -I${SRCDIR}/tensorflow
-// #cgo LDFLAGS: -L${SRCDIR}/tensorflow -ldl -lc++
-//
+// #cgo LDFLAGS: -ltensorflowlite_c
 // #include <stdlib.h>
 // #include <tensorflow/lite/c/c_api.h>
 import "C"

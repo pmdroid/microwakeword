@@ -19,7 +19,11 @@ BAZEL = bazel
 TF_LITE_LIB = $(BUILD_DIR)/tensorflow/bazel-bin/tensorflow/lite/c/libtensorflowlite_c.so
 MICROFRONTEND_LIB = $(BUILD_DIR)/tensorflow/bazel-bin/tensorflow/lite/experimental/microfrontend/lib/libmicrofrontend.so
 
-.PHONY: all clean install install_shared download build check_build
+# TensorFlow headers
+TF_HEADERS_DIR = $(BUILD_DIR)/tensorflow/tensorflow
+MICROFRONTEND_HEADERS_DIR = $(BUILD_DIR)/tensorflow/tensorflow/lite/experimental/microfrontend
+
+.PHONY: all clean install install_shared install_headers download build check_build
 
 all: download build
 
@@ -84,6 +88,32 @@ install_shared: build
 	$(CP) $(BUILD_DIR)/tensorflow/bazel-bin/tensorflow/lite/c/libtensorflowlite_c.so $(INSTALL_PREFIX)/lib/
 	$(CP) $(BUILD_DIR)/tensorflow/bazel-bin/tensorflow/lite/experimental/microfrontend/lib/libmicrofrontend.so $(INSTALL_PREFIX)/lib/
 	@echo "Shared library installation complete to $(INSTALL_PREFIX)/lib"
+
+
+# Install header files
+install_headers: build
+	@echo "Installing header files..."
+	# Create include directories
+	$(MKDIR) $(INSTALL_PREFIX)/include/tensorflow/compiler/mlir/lite/core/c
+	$(MKDIR) $(INSTALL_PREFIX)/include/tensorflow/lite/c
+	$(MKDIR) $(INSTALL_PREFIX)/include/tensorflow/lite/core/c
+	$(MKDIR) $(INSTALL_PREFIX)/include/tensorflow/lite/core/async/c
+	$(MKDIR) $(INSTALL_PREFIX)/include/tensorflow/lite/experimental/microfrontend
+
+	# Install TensorFlow Lite C API headers
+	$(CP) -R $(TF_HEADERS_DIR)/compiler/mlir/lite/core/c/*.h $(INSTALL_PREFIX)/include/tensorflow/compiler/mlir/lite/core/c
+	$(CP) -R $(TF_HEADERS_DIR)/lite/core/c/*.h $(INSTALL_PREFIX)/include/tensorflow/lite/core/c
+	$(CP) -R $(TF_HEADERS_DIR)/lite/core/async/c/*.h $(INSTALL_PREFIX)/include/tensorflow/lite/core/async/c
+	$(CP) -R $(TF_HEADERS_DIR)/lite/c/*.h $(INSTALL_PREFIX)/include/tensorflow/lite/c
+
+	# Install Microfrontend headers (recursively for all subdirectories)
+	$(CP) $(MICROFRONTEND_HEADERS_DIR) $(INSTALL_PREFIX)/include/tensorflow/lite/experimental/
+
+	# Install KissFFT headers if they're needed
+	$(MKDIR) $(INSTALL_PREFIX)/include/kissfft
+	$(CP) $(BUILD_DIR)/kissfft/*.h $(INSTALL_PREFIX)/include/kissfft/
+
+	@echo "Header files installation complete to $(INSTALL_PREFIX)/include"
 
 # Clean up
 clean:

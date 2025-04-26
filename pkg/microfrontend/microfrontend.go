@@ -1,13 +1,11 @@
 package microfrontend
 
 // #cgo LDFLAGS: -lmicrofrontend -lm -ltensorflowlite_c
-/*
-#include <stdlib.h>
-#include <stdint.h>
-#include <string.h>
-#include "tensorflow/lite/experimental/microfrontend/lib/frontend.h"
-#include "tensorflow/lite/experimental/microfrontend/lib/frontend_util.h"
-*/
+// #include <stdlib.h>
+// #include <stdint.h>
+// #include <string.h>
+// #include "tensorflow/lite/experimental/microfrontend/lib/frontend.h"
+// #include "tensorflow/lite/experimental/microfrontend/lib/frontend_util.h"
 import "C"
 import (
 	"fmt"
