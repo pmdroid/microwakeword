@@ -32,6 +32,7 @@ cd microwakeword
 
 # Build and install dependencies (may require sudo for installation)
 make
+sudo make install
 ```
 
 The Makefile will:
