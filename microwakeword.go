@@ -12,6 +12,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"sync"
 	"unsafe"
 )
 
@@ -64,6 +65,8 @@ type MicroWakeWord struct {
 	probabilities []float64
 	audioBuffer   []byte
 	ignoreSeconds float64
+
+	mu sync.Mutex
 }
 
 func NewMicroWakeWord(
@@ -259,6 +262,9 @@ func clampToInt8(val float32) int8 {
 }
 
 func (mww *MicroWakeWord) runInference(features [][]float32) (float64, error) {
+	mww.mu.Lock()
+	defer mww.mu.Unlock()
+
 	var input []float32
 	for _, feat := range features {
 		input = append(input, feat...)
@@ -290,7 +296,12 @@ func (mww *MicroWakeWord) runInference(features [][]float32) (float64, error) {
 }
 
 func (mww *MicroWakeWord) ProcessStreaming(audioBytes []byte) (bool, error) {
+	mww.mu.Lock()
 	mww.audioBuffer = append(mww.audioBuffer, audioBytes...)
+	audioBufferCopy := make([]byte, len(mww.audioBuffer))
+	copy(audioBufferCopy, mww.audioBuffer)
+	mww.mu.Unlock()
+
 	if len(mww.audioBuffer) < BytesPerChunk {
 		return false, nil
 	}
